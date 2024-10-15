@@ -1,5 +1,4 @@
-// Função para mapear os atributos (strings) para cores eixo_fd_fne_br101
-const getColorFromAttribute = (attributeValue) => {
+function getColorFromAttribute(attributeValue) {
   switch (attributeValue) {
     case 'FAIXA DOMINIO':
       return [255, 0, 0]; // vermelho para "alto"
@@ -10,4 +9,4 @@ const getColorFromAttribute = (attributeValue) => {
     default:
       return [128, 128, 128]; // cinza para valores desconhecidos
   }
-};
+}
