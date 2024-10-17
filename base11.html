@@ -46,12 +46,20 @@
 			<span class="caret">Quadras</span>
 			  <ul class="nested">
 				<li>
-					<input type="checkbox" id="qreg20240702" name="qreg20240702">
-					<label for="qreg20240702">Regulares</label>
+					<input type="checkbox" id="Qr20240702" name="Qr20240702">
+					<label for="Qr20240702">Regulares</label>
 				</li>
 				<li>
-					<input type="checkbox" id="qregsobr20240702" name="qregsobr20240702">
-					<label for="qregsobr20240702">Sobrepostas</label>
+					<input type="checkbox" id="Qrs20240702" name="Qrs20240702">
+					<label for="Qrs20240702">Sobrepostas</label>
+				</li>
+				<li>
+					<input type="checkbox" id="Qi20240702" name="Qi20240702">
+					<label for="Qi20240702">Invasão</label>
+				</li>
+				<li>
+					<input type="checkbox" id="Z20240702" name="Z20240702">
+					<label for="Z20240702">ZEIS</label>
 				</li>
 			  </ul>
           </li>
@@ -82,8 +90,8 @@
         <span class="caret">2022</span>
         <ul class="nested">
           <li>
-            <input type="checkbox" id="inundRev04E" name="inundRev04E">
-            <label for="inundRev04E">Inundação Rev04E</label>
+            <input type="checkbox" id="InRev04E" name="InRev04E">
+            <label for="InRev04E">Inundação Rev04E</label>
           </li>
         </ul>
       </li>
@@ -137,6 +145,9 @@ const MAPSTYLE_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com
 			//REGULARES
 const Q_REG_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_533091eca2a3444ca3a363fa5d302aa3.json';
 const Q_REG_SOBR_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_bdc3ffd549594b27a907ecf6d397ef28.json';
+			//INVASAO
+const Q_INV_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_8f34be2854f84142841b8bfd69ca6ce3.json';
+const ZEIS_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_2c169bd71d464312ae54917a5e474194.json';
 
 //INUNDACAO 2022
 const INUNDACAO_REV04E_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_4a9c691951124d1b8b1f28f64939474d.json';
@@ -389,268 +400,137 @@ MapboxDraw.constants.classes.CONTROL_GROUP = 'maplibregl-ctrl-group';
                 alert('Use the draw tools to draw a polygon!');
         }
     }
-	
-	let overlayQRegSobr20240702;
-	let overlayQReg20240702;
-	let overlayInundRev04E;
-	let showQRegSobr20240702 = false; // Display the layer by default
-	let showQReg20240702 = false; // Display the layer by default
-	let showInundRev04E = false; // Display the layer by default
-	
-	function iniciarQRegSobr20240702(){
-	
-	//****************************************************************************************************************
-	//CAMADA QREG SOBR 2024 07 02
-	const q_reg_sobr_20240702 = new deck.GeoJsonLayer({
-	id: 'qregsobr20240702',
-	data: Q_REG_SOBR_20240702_JSON,
-	filled: true, // Preenche o polígono
-	stroked: true, // Desenha as bordas do polígono
-	getFillColor: [169, 69, 105, 125],
-	getLineColor: [206, 106, 135, 125], // Cor da linha
-	lineWidthMinPixels: 1, // Largura mínima da linha
-	pickable: true, // Permite que o polígono seja clicado
-	autoHighlight: true,
-	getCursor: 'grab',
-	  
-    onClick: info => {
-			if (info.object) {
-				const obs = info.object.properties.observacao
-				let description = 'PQ Regular Sobreposta: ' + info.object.properties.dsqf; 
-				/* if (ly === 'MASSAS DAGUA EXISTENTES') {
-					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
-				} */
-				// Set content for the modal
-				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
-				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
-				// Display the modal
-				document.getElementById('infoModal').style.display = 'block';
-			}
-		}
-	});
-	//FIM
-    //****************************************************************************************************************
-
-		overlayQRegSobr20240702 = new deck.MapboxOverlay({
-			layers: [q_reg_sobr_20240702],
-		});
-		map.addControl(overlayQRegSobr20240702);
-	}
-	
-	function iniciarQReg20240702(){
-	
-	//****************************************************************************************************************
-	//CAMADA QREG 2024 07 02
-	const q_reg_20240702 = new deck.GeoJsonLayer({
-	id: 'qreg20240702',
-	data: Q_REG_20240702_JSON,
-	filled: true, // Preenche o polígono
-	stroked: true, // Desenha as bordas do polígono
-	getFillColor: [230, 103, 103, 125],
-	getLineColor: [234, 134, 133, 125], // Cor da linha
-	lineWidthMinPixels: 1, // Largura mínima da linha
-	pickable: true, // Permite que o polígono seja clicado
-	autoHighlight: true,
-	getCursor: 'grab',
-	  
-    onClick: info => {
-			if (info.object) {
-				const obs = info.object.properties.observacao
-				let description = 'PQ Regular: ' + info.object.properties.dsqf; 
-				/* if (ly === 'MASSAS DAGUA EXISTENTES') {
-					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
-				} */
-				// Set content for the modal
-				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
-				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
-				// Display the modal
-				document.getElementById('infoModal').style.display = 'block';
-			}
-		}
-	});
-	//FIM INUNDACAO 2022
-    //****************************************************************************************************************
-
-		overlayQReg20240702 = new deck.MapboxOverlay({
-			layers: [q_reg_20240702],
-		});
-		map.addControl(overlayQReg20240702);
-	}
-	
-	function iniciarInundRev04E(){
-	
-	//****************************************************************************************************************
-	//CAMADA INUNDACAO 2022
-	const inundacao_rev04e = new deck.GeoJsonLayer({
-	id: 'inundacao_rev04e',
-	data: INUNDACAO_REV04E_JSON,
-	filled: true, // Preenche o polígono
-	stroked: true, // Desenha as bordas do polígono
-	getFillColor: [84, 109, 229, 125],
-	getLineColor: [84, 109, 229, 125], // Cor da linha
-	lineWidthMinPixels: 1, // Largura mínima da linha
-	pickable: true, // Permite que o polígono seja clicado
-	autoHighlight: true,
-	getCursor: 'grab',
-	  
-    onClick: info => {
-			if (info.object) {
-				const ly = info.object.properties.LAYER
-				let description = 'Inundado - A MSL: ' + parseFloat(info.object.properties.COTAMAXNOV).toFixed(2) + 'm'; 
-				if (ly === 'MASSAS DAGUA EXISTENTES') {
-					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
-				}
-				// Set content for the modal
-				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
-				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
-				// Display the modal
-				document.getElementById('infoModal').style.display = 'block';
-			}
-		}
-	});
-	//FIM INUNDACAO 2022
-    //****************************************************************************************************************
-
-		overlayInundRev04E = new deck.MapboxOverlay({
-			layers: [inundacao_rev04e],
-		});
-		map.addControl(overlayInundRev04E);
-	}
-	
-	let overlayBR101 = null;
-	let showBR101 = false;
-	function iniciarBR101(){
-		overlayBR101 = new deck.MapboxOverlay({
+			
+	let ovBR101 = null;
+	let shBr101 = false;
+	function inBr101(){
+		ovBR101 = new deck.MapboxOverlay({
 			layers: [
 					ad33geoLayerLine('eixo_fd_fne_br101', EIXO_FD_FNE_BR101_JSON, 5, 'FAIXA', 'BR-101', 'infoModal'),
 					ad33geoLayerPoint('km-br101', KM_BR101_JSON, 0.0025, [200, 0, 80, 180], 'KM', 'BR-101', 'infoModal')
 					],
 		});
-		map.addControl(overlayBR101);
+		map.addControl(ovBR101);
 	}
 	
-	/* function iniciarBR101 () {
-	// Create the overlay BR-101
-	
-	//****************************************************************************************************************
-	//CAMADAS DA RODOVIA BR-101
-	const eixo_fd_fne_br101 = new deck.GeoJsonLayer({
-	id: 'eixo_fd_fne_br101',
-	data: EIXO_FD_FNE_BR101_JSON,
-	filled: true, // Preenche o polígono
-	stroked: true, // Desenha as bordas do polígono
-	getFillColor: (d) => getColorFromAttribute(d.properties.FAIXA),
-	getLineColor: (d) => getColorFromAttribute(d.properties.FAIXA), // Cor da linha
-	lineWidthMinPixels: 5, // Largura mínima da linha
-	pickable: true, // Permite que o polígono seja clicado
-	autoHighlight: true,
-	getCursor: 'grab',
-	  
-    onClick: info => {
-				if (info.object) {
-					
-					const FAIXA = info.object.properties.FAIXA;
-					const description = info.object.properties.FAIXA; // Assuming this is valid HTML
-
-					// Set content for the modal
-					//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
-					document.getElementById('modalContent').innerHTML = 'BR-101 / ' + description; //`<h2>${name}</h2>${description}`;
-					// Display the modal
-					document.getElementById('infoModal').style.display = 'block';
-								}
-						}
-	});
-	const km_br101 = new deck.GeoJsonLayer({
-      id: 'km_br101',
-      data: KM_BR101_JSON,
-      // Styles
-      filled: true,
-      pointRadiusMinPixels: 3,
-      pointRadiusScale: 2000,
-      getPointRadius: Raio_Objeto,
-      getFillColor: [200, 0, 80, 180],
-      // Interactive props
-      pickable: true,
-      autoHighlight: true,
-	  
-      onClick: info => {
-				if (info.object) {
-					const KM = info.object.properties.KM;
-					const description = info.object.properties.KM; // Assuming this is valid HTML
-
-					// Set content for the modal
-					document.getElementById('modalContent').innerHTML = 'BR-101 / ' + description //`<h2>${name}</h2>${description}`;
-					// Display the modal
-					document.getElementById('infoModal').style.display = 'block';
-								}
-						}
-    });
-    //FIM BR-101
-    //****************************************************************************************************************
-		
-		overlayBR101 = new deck.MapboxOverlay({
-			layers: [eixo_fd_fne_br101, km_br101],
+	let ovInRev04E = null;	
+	let shInRev04E = false; // Display the layer by default
+	function inInRev04E(){
+		ovInRev04E = new deck.MapboxOverlay({
+			layers: [ad33geoLayerPolygon('inundacaorev04e', INUNDACAO_REV04E_JSON, [84, 109, 229, 125], 'COTAMAXNOV', 'Alt. MSL máxima', 'infoModal')],
 		});
-		map.addControl(overlayBR101);
+		map.addControl(ovInRev04E);
 	}
- */
+
+	let ovQr20240702 = null;
+	let shQr20240702 = false; // Display the layer by default
+	function inQr20240702(){
+		ovQr20240702 = new deck.MapboxOverlay({
+			layers: [ad33geoLayerPolygon('quadraregular20240702', Q_REG_20240702_JSON, 	[230, 103, 103, 125], 'dsqf', 'Planta Quadra Regular', 'infoModal')],
+		});
+		map.addControl(ovQr20240702);
+	}
+
+	let ovQrs20240702;
+	let shQrs20240702 = false; // Display the layer by default
+	function inQrs20240702(){
+		ovQrs20240702 = new deck.MapboxOverlay({
+			layers: [ad33geoLayerPolygon('quadraregularsobreposta20240702', Q_REG_SOBR_20240702_JSON, [200, 142, 154, 125], 'dsqf', 'Planta Quadra Regular Sobreposta', 'infoModal')],
+		});
+		map.addControl(ovQrs20240702);
+	}
+	
+	let ovQi20240702;
+	let shQi20240702 = false; // Display the layer by default
+	function inQi20240702(){
+		ovQi20240702 = new deck.MapboxOverlay({
+			layers: [ad33geoLayerPolygon('quadrainvasao20240702', Q_INV_20240702_JSON, [100, 042, 054, 125], 'dsqf', 'Planta Quadra Invasão', 'infoModal')],
+		});
+		map.addControl(ovQi20240702);
+	}
+
+	let ovZ20240702;
+	let shZ20240702 = false; // Display the layer by default
+	function inZ20240702(){
+		ovZ20240702 = new deck.MapboxOverlay({
+			layers: [ad33geoLayerPolygon('zeis20240702', ZEIS_20240702_JSON, [0, 12, 34, 125], 'nome_area', 'ZEIS', 'infoModal')],
+		});
+		map.addControl(ovZ20240702);
+	}
+
 	map.setMaxBounds(bounds);
+					
+	map.on('load', () => {
+		document.getElementById('Z20240702').addEventListener('change', () => {
+              if (shZ20240702) {
+                  map.removeControl(ovZ20240702);
+                  shZ20240702 = false;
+              } else {
+                  inZ20240702();
+                  shZ20240702 = true;
+              }
+		});
+	});
+		
+	map.on('load', () => {
+		document.getElementById('Qi20240702').addEventListener('change', () => {
+              if (shQi20240702) {
+                  map.removeControl(ovQi20240702);
+                  shQi20240702 = false;
+              } else {
+                  inQi20240702();
+                  shQi20240702 = true;
+              }
+		});
+	});
 	
 	map.on('load', () => {
-		
+		document.getElementById('Qrs20240702').addEventListener('change', () => {
+              if (shQrs20240702) {
+                  map.removeControl(ovQrs20240702);
+                  shQrs20240702 = false;
+              } else {
+                  inQrs20240702();
+                  shQrs20240702 = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {		
+		document.getElementById('Qr20240702').addEventListener('change', () => {
+              if (shQr20240702) {
+                  map.removeControl(ovQr20240702);
+                  shQr20240702 = false;
+              } else {
+                  inQr20240702();
+                  shQr20240702 = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {
+		document.getElementById('InRev04E').addEventListener('change', () => {
+              if (shInRev04E) {
+                  map.removeControl(ovInRev04E);
+                  shInRev04E = false;
+              } else {
+                  inInRev04E();
+                  shInRev04E = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {
 		document.getElementById('br101').addEventListener('change', () => {
-              if (showBR101) {
-                  map.removeControl(overlayBR101);
-                  showBR101 = false;
+              if (shBr101) {
+                  map.removeControl(ovBR101);
+                  shBr101 = false;
               } else {
-                  iniciarBR101();
-                  showBR101 = true;
+                  inBr101();
+                  shBr101 = true;
               }
 		});
 	});
-	
-	map.on('load', () => {
-		// Add the overlayQRegSobr20240702
-		
-		document.getElementById('qregsobr20240702').addEventListener('change', () => {
-              if (showQRegSobr20240702) {
-                  map.removeControl(overlayQRegSobr20240702);
-                  showQRegSobr20240702 = false;
-              } else {
-                  iniciarQRegSobr20240702();
-                  showQRegSobr20240702 = true;
-              }
-		});
-	});
-	
-	map.on('load', () => {
-		// Add the overlayQReg20240702
-		
-		document.getElementById('qreg20240702').addEventListener('change', () => {
-              if (showQReg20240702) {
-                  map.removeControl(overlayQReg20240702);
-                  showQReg20240702 = false;
-              } else {
-                  iniciarQReg20240702();
-                  showQReg20240702 = true;
-              }
-		});
-	});
-	
-	map.on('load', () => {
-		// Add the overlayBR101
-		
-		document.getElementById('inundRev04E').addEventListener('change', () => {
-              if (showInundRev04E) {
-                  map.removeControl(overlayInundRev04E);
-                  showInundRev04E = false;
-              } else {
-                  iniciarInundRev04E();
-                  showInundRev04E = true;
-              }
-		});
-	});
-	
 	
 	map.on('load', () => {		
 		map.addSource('geojson', {
