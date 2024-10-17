@@ -1,5 +1,5 @@
-function ad33geoLayerPoint(overlay, idPoint, urlJSON, radiusPoint, fillColor, infoKey, textInfoKey, idInfoModal) {
-    const pt = new deck.GeoJsonLayer({
+function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, infoKey, textInfoKey, idInfoModal) {
+    const lGeoJSONLayer = new deck.GeoJsonLayer({
         id: idPoint,
         data: urlJSON,
         // Styles
@@ -26,15 +26,11 @@ function ad33geoLayerPoint(overlay, idPoint, urlJSON, radiusPoint, fillColor, in
             }
         }
     });
-
-    overlay = new deck.MapboxOverlay({
-        layers: [pt],
-    });
-    map.addControl(overlay);
+	return lGeoJSONLayer;
 }
 
-function ad33geoLayerLine (overlay, idLine, urlJSON, lineWidth,infoKey, textInfoKey, idInfoModal) {
-	const lin = new deck.GeoJsonLayer({
+function ad33geoLayerLine (idLine, urlJSON, lineWidth,infoKey, textInfoKey, idInfoModal) {
+	const lGeoJSONLayer = new deck.GeoJsonLayer({
 	id: idLine,
 	data: urlJSON,
 	filled: true, // Preenche o polígono
@@ -60,9 +56,6 @@ function ad33geoLayerLine (overlay, idLine, urlJSON, lineWidth,infoKey, textInfo
             }
         }
 	});
-    overlay = new deck.MapboxOverlay({
-        layers: [lin],
-    });
-    map.addControl(overlay);
+	return lGeoJSONLayer;
 }
 
