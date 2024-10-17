@@ -16,7 +16,7 @@ function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, infoKey, te
             if (info.object) {
                 const propertyValue = info.object.properties[infoKey] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey} / ${propertyValue}`;
+                    `${textInfoKey}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
@@ -40,7 +40,7 @@ function ad33geoLayerLine(idLine, urlJSON, lineWidth, infoKey, textInfoKey, idIn
             if (info.object) {
                 const propertyValue = info.object.properties[infoKey] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey} / ${propertyValue}`;
+                    `${textInfoKey}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
@@ -64,7 +64,7 @@ function ad33geoLayerPolygon(idPoly, urlJSON, fillColor, infoKey, textInfoKey, i
             if (info.object) {
                 const propertyValue = info.object.properties[infoKey] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey} / ${propertyValue}`;
+                    `${textInfoKey}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
