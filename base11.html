@@ -1,0 +1,886 @@
+<html>
+
+<head>
+
+<!-- deck.gl standalone bundle -->
+	<script src="https://unpkg.com/deck.gl@^9.0.0-beta/dist.min.js"></script>
+
+<!-- Maplibre dependencies -->
+	<script src='https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.js'></script>
+
+<!-- Load the maplibre-gl-geocoder plugin. -->
+	<script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.min.js"></script>
+
+<!-- Para Medir Dist. -->
+	<script src="https://npmcdn.com/@turf/turf@5.1.6/turf.min.js"></script>
+
+<!-- Mapbox -->
+	<script src="https://www.unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.js"></script>
+
+<!-- ad33geo -->
+	<script src="https://geozyx.github.io/ad33geo/js/a33g_leg.js"></script>
+	<script src="https://geozyx.github.io/ad33geo/js/layers.js"></script>
+
+<!-- Estilos -->
+	<link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.css' />
+	<link rel='stylesheet' href='https://www.unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.css'/>
+	<link rel='stylesheet' href='https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css'/>
+	<link rel='stylesheet' href='https://geozyx.github.io/ad33geo/css/global_mapjab.css'/>
+
+</head>
+  <body>
+    <div id="map"></div>
+	<div id="distance" class="distance-container"></div>
+	<button class="clear-btn" id="clearBtn">Limpar Dist.</button>
+	<button class="toggle-btn" id="toggleBtn">Medir Dist.</button> 
+	<div class="tree-layers">
+	
+<ul id="myUL">
+  <li>
+    <span class="caret">Cadastro Até</span>
+    <ul class="nested">
+      <li>
+        <span class="caret">2024 07 02</span>
+        <ul class="nested">
+          <li>
+			<span class="caret">Quadras</span>
+			  <ul class="nested">
+				<li>
+					<input type="checkbox" id="qreg20240702" name="qreg20240702">
+					<label for="qreg20240702">Regulares</label>
+				</li>
+				<li>
+					<input type="checkbox" id="qregsobr20240702" name="qregsobr20240702">
+					<label for="qregsobr20240702">Sobrepostas</label>
+				</li>
+			  </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+
+  <li>
+    <span class="caret">Rodovias</span>
+    <ul class="nested">
+      <li>
+        <span class="caret">Federais</span>
+        <ul class="nested">
+          <li>
+            <input type="checkbox" id="br101" name="br101">
+            <label for="br101">BR-101</label>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  
+  <li>
+    <span class="caret">Inundação</span>
+    <ul class="nested">
+      <li>
+        <span class="caret">2022</span>
+        <ul class="nested">
+          <li>
+            <input type="checkbox" id="inundRev04E" name="inundRev04E">
+            <label for="inundRev04E">Inundação Rev04E</label>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+	</div>
+	<div id="info"></div>
+    <div id="infoModal">
+      <div id="infoModalHeader"><span id="closeModal">&times; Fechar</span></div>
+      <div id="modalContent"></div>
+    </div>
+	</div>
+  </body>
+  <script type="text/javascript">
+
+//Centro do mapa
+const LatCentJab = -8.164195;
+const LonCentJab = -34.988679;
+const Raio_Objeto = 0.001; // em graus decimais
+const ZoomInicial = 12;
+
+const bounds = [
+    [-35.29, -8.30], // sudoeste: [longitude, latitude]
+    [-34.66, -8.04]  // nordeste: [longitude, latitude]
+];
+
+//Árvore de Camadas
+
+var toggler = document.getElementsByClassName("caret");
+var i;
+
+for (i = 0; i < toggler.length; i++) {
+  toggler[i].addEventListener("click", function() {
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("caret-down");
+  });
+}
+
+//****************************************************************************************************************
+//URL JSON
+//****************************************************************************************************************
+
+//MAPSTYLE
+const MAPSTYLE_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_179dcacb535b41b88c2c2a1e1d5bd132.json';
+
+//SIAT
+	//2024 07 02
+		//QUADRAS
+			//REGULARES
+const Q_REG_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_533091eca2a3444ca3a363fa5d302aa3.json';
+const Q_REG_SOBR_20240702_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_bdc3ffd549594b27a907ecf6d397ef28.json';
+
+//INUNDACAO 2022
+const INUNDACAO_REV04E_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_4a9c691951124d1b8b1f28f64939474d.json';
+
+//BR-101
+const EIXO_FD_FNE_BR101_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_41009ec818e34b3eab5fb3c34f916dbd.json';
+const KM_BR101_JSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_4d263dab877d4968998033707a00464d.json';
+
+async function fetchJson(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            //alert(`Erro ao buscar o JSON: ${response.statusText}`);
+            return null; // Retorna null em caso de erro
+        }
+        const jsonData = await response.json();
+        return jsonData; // Retorna o objeto JSON
+    } catch (error) {
+        //alert(`Erro durante a busca: ${error.message}`);
+        return null; // Retorna null em caso de exceção
+    }
+}
+
+function calcularCentroid(polygonString) {
+    // Divide a string em um array de números
+    const coordinates = polygonString.split(',').map(Number);
+    let x = 0, y = 0;
+    const n = coordinates.length / 2; // Divide por 2 porque temos pares (lon, lat)
+
+    for (let i = 0; i < coordinates.length; i += 2) {
+        x += coordinates[i];     // Longitude
+        y += coordinates[i + 1]; // Latitude
+    }
+
+    return [x / n, y / n]; // Retorna o centróide como [longitude, latitude]
+}
+
+function buscarJSON(jsonData, valorJSON) {
+    let found = false;
+	//let centroid = null;
+
+    // Verifica se a estrutura do JSON é um MultiPolygon
+    if (jsonData.type === "FeatureCollection") {
+        
+		for (const feature of jsonData.features) {
+            if (feature.properties && feature.properties.dsqf === valorJSON) {
+                // O formato de 'coordinates' para MultiPolygon é [ [ [ [lon, lat], ...], ...], ...]
+                const polygonString = feature.geometry.coordinates[0][0].join(','); // Converte para string
+                centroid = calcularCentroid(polygonString);
+				//alert(`Propriedade dsqf '${valorJSON}' encontrada.\nCentróide: [Longitude: ${centroid[0]}, Latitude: ${centroid[1]}]`);
+                found = true;
+				break;
+            }
+        }
+		if (!found) {
+			for (const feature of jsonData.features) {
+				if (feature.properties && feature.properties.KM === valorJSON && feature.geometry.type === 'Point') {
+				// Verifica se o tipo da geometria é Point
+					if (feature.geometry.coordinates && feature.geometry.coordinates.length === 2) {
+						// As coordenadas do ponto são [longitude, latitude]
+						const pointCoordinates = feature.geometry.coordinates;
+						//alert(`Propriedade KM '${valorJSON}' encontrada no Point.\nCoordenadas: [Longitude: ${pointCoordinates[0]}, Latitude: ${pointCoordinates[1]}]`);
+						centroid = pointCoordinates;
+						found = true;
+						break;
+					} else {
+						//alert("As coordenadas do Point não são válidas.");
+					}
+				}
+			}
+		}
+		
+    } else {
+        //alert("A estrutura do JSON não é uma FeatureCollection.");
+    }
+
+    if (!found) {
+        //alert(`Valor '${valorJSON}' não encontrado em nenhum polígono.`);
+    }
+	return centroid;
+}
+
+const map = new maplibregl.Map({
+          container: 'map',
+          style: MAPSTYLE_JSON,
+          center: [LonCentJab, LatCentJab],
+          zoom: ZoomInicial,
+      });
+	
+const geocoderApi = {
+        forwardGeocode: async (config) => {
+            const features = [];
+            try {
+				
+let valorJSON = config.query; // Substitua pelo valor que você está buscando
+let centroid;
+let url = ""; // Inicializa a URL corretamente
+let rotulo_busca = ""; // Inicializa a variável rotulo_busca
+
+// Estrutura de seleção
+switch (true) {
+    case valorJSON.startsWith("KM="): // Se os três primeiros caracteres forem "KM="
+        url = KM_BR101_JSON;
+        rotulo_busca = 'BR-101: ';
+        break;
+		
+    case /^[0-9]{8}$/.test(valorJSON): // Se for exatamente 8 caracteres numéricos
+        url = Q_REG_20240702_JSON;
+        rotulo_busca = 'Regular: ';
+        break;
+		
+    case valorJSON.startsWith("RS="): // Se os três primeiros caracteres forem "RS="
+        url = Q_REG_SOBR_20240702_JSON;
+        rotulo_busca = 'Regular Sobrep.: ';
+		valorJSON = valorJSON.substring(3, 11);
+        break;
+		
+    default:
+        console.error("Nenhuma correspondência encontrada para o valor de config.query.");
+        break;
+}
+
+if (url) { // Certifica-se de que a URL foi definida antes de fazer a requisição
+    fetchJson(url).then(data => {
+        if (data) {
+            centroid = buscarJSON(data, valorJSON); // Realiza a busca no JSON
+
+            // Verifica se o centroid foi encontrado
+            if (centroid) {
+                const point = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: centroid
+                    },
+                    place_name: rotulo_busca + valorJSON, // Adiciona o rótulo correto
+                    text: valorJSON,
+                    place_type: ['place'],
+                    centroid
+                };
+
+                // Adiciona o ponto ao array de features
+                features.push(point);
+                console.log("Ponto encontrado:", point);
+            } else {
+                console.warn(`Nenhum ponto encontrado para ${valorJSON}`);
+            }
+        }
+    }).catch(error => {
+        console.error("Erro ao buscar os dados: ", error.message);
+    });
+} else {
+    console.error("Nenhuma URL foi definida. Verifique a entrada de valorJSON.");
+}
+
+                const request =
+            `https://nominatim.openstreetmap.org/search?q=${
+                config.query
+            }&format=geojson&polygon_geojson=1&addressdetails=1`;
+                const response = await fetch(request);
+                const geojson = await response.json();
+                for (const feature of geojson.features) {
+                    const center = [
+                        feature.bbox[0] +
+                    (feature.bbox[2] - feature.bbox[0]) / 2,
+                        feature.bbox[1] +
+                    (feature.bbox[3] - feature.bbox[1]) / 2
+                    ];
+					//alert(feature);
+                    const point = {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: center
+                        },
+                        place_name: feature.properties.display_name,
+                        properties: feature.properties,
+                        text: feature.properties.display_name,
+                        place_type: ['place'],
+                        center
+                    };
+                    features.push(point);
+                }
+            } catch (e) {
+                console.error(`Failed to forwardGeocode with error: ${e}`);
+            }
+			
+            return {
+                features
+            };
+        }
+    };
+	  map.addControl(new MaplibreGeocoder(geocoderApi, {maplibregl}), 'top-right');
+	  map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+// PREPARAÇÃO MEDIÇÃO DE DISTÂNCIAS
+const distanceContainer = document.getElementById('distance');
+const clearBtn = document.getElementById('clearBtn');
+const toggleBtn = document.getElementById('toggleBtn');
+let isMeasuring = false;  // Flag para controle de ativação/desativação da medição
+// GeoJSON object to hold our measurement features
+    const geojson = {
+        'type': 'FeatureCollection',
+        'features': []
+    };
+    // Used to draw a line between points
+    const linestring = {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': []
+        }
+    };
+
+// PREPARAÇÃO MEDIÇÃO DE ÁREA
+MapboxDraw.constants.classes.CONTROL_BASE  = 'maplibregl-ctrl';
+MapboxDraw.constants.classes.CONTROL_PREFIX = 'maplibregl-ctrl-';
+MapboxDraw.constants.classes.CONTROL_GROUP = 'maplibregl-ctrl-group';
+
+	const draw = new MapboxDraw({
+        displayControlsDefault: false,
+        controls: {
+            polygon: true,
+            trash: true
+        }
+    });
+	map.addControl(draw);
+    map.on('draw.create', updateArea);
+    map.on('draw.delete', updateArea);
+    map.on('draw.update', updateArea);
+	
+	function updateArea(e) {
+        const data = draw.getAll();
+        const answer = document.getElementById('distance');
+        if (data.features.length > 0) {
+            const area = turf.area(data);
+            const len = turf.length(data)*1000;
+            // restrict to area to 2 decimal points
+            const roundedArea = Math.round(area * 100) / 100;
+            const roundedLen = len.toFixed(2);
+			
+			// Populate the distanceContainer with total distance
+                const value = document.createElement('pre');
+                value.textContent =
+                    `Área: ${roundedArea} m² / Perímetro: ${roundedLen} m`;
+                answer.appendChild(value);
+        } else {
+            answer.innerHTML = '';
+            if (e.type !== 'draw.delete')
+                alert('Use the draw tools to draw a polygon!');
+        }
+    }
+	
+	let overlayQRegSobr20240702;
+	let overlayQReg20240702;
+	let overlayInundRev04E;
+	let showQRegSobr20240702 = false; // Display the layer by default
+	let showQReg20240702 = false; // Display the layer by default
+	let showInundRev04E = false; // Display the layer by default
+	
+	function iniciarQRegSobr20240702(){
+	
+	//****************************************************************************************************************
+	//CAMADA QREG SOBR 2024 07 02
+	const q_reg_sobr_20240702 = new deck.GeoJsonLayer({
+	id: 'qregsobr20240702',
+	data: Q_REG_SOBR_20240702_JSON,
+	filled: true, // Preenche o polígono
+	stroked: true, // Desenha as bordas do polígono
+	getFillColor: [169, 69, 105, 125],
+	getLineColor: [206, 106, 135, 125], // Cor da linha
+	lineWidthMinPixels: 1, // Largura mínima da linha
+	pickable: true, // Permite que o polígono seja clicado
+	autoHighlight: true,
+	getCursor: 'grab',
+	  
+    onClick: info => {
+			if (info.object) {
+				const obs = info.object.properties.observacao
+				let description = 'PQ Regular Sobreposta: ' + info.object.properties.dsqf; 
+				/* if (ly === 'MASSAS DAGUA EXISTENTES') {
+					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
+				} */
+				// Set content for the modal
+				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
+				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
+				// Display the modal
+				document.getElementById('infoModal').style.display = 'block';
+			}
+		}
+	});
+	//FIM
+    //****************************************************************************************************************
+
+		overlayQRegSobr20240702 = new deck.MapboxOverlay({
+			layers: [q_reg_sobr_20240702],
+		});
+		map.addControl(overlayQRegSobr20240702);
+	}
+	
+	function iniciarQReg20240702(){
+	
+	//****************************************************************************************************************
+	//CAMADA QREG 2024 07 02
+	const q_reg_20240702 = new deck.GeoJsonLayer({
+	id: 'qreg20240702',
+	data: Q_REG_20240702_JSON,
+	filled: true, // Preenche o polígono
+	stroked: true, // Desenha as bordas do polígono
+	getFillColor: [230, 103, 103, 125],
+	getLineColor: [234, 134, 133, 125], // Cor da linha
+	lineWidthMinPixels: 1, // Largura mínima da linha
+	pickable: true, // Permite que o polígono seja clicado
+	autoHighlight: true,
+	getCursor: 'grab',
+	  
+    onClick: info => {
+			if (info.object) {
+				const obs = info.object.properties.observacao
+				let description = 'PQ Regular: ' + info.object.properties.dsqf; 
+				/* if (ly === 'MASSAS DAGUA EXISTENTES') {
+					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
+				} */
+				// Set content for the modal
+				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
+				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
+				// Display the modal
+				document.getElementById('infoModal').style.display = 'block';
+			}
+		}
+	});
+	//FIM INUNDACAO 2022
+    //****************************************************************************************************************
+
+		overlayQReg20240702 = new deck.MapboxOverlay({
+			layers: [q_reg_20240702],
+		});
+		map.addControl(overlayQReg20240702);
+	}
+	
+	function iniciarInundRev04E(){
+	
+	//****************************************************************************************************************
+	//CAMADA INUNDACAO 2022
+	const inundacao_rev04e = new deck.GeoJsonLayer({
+	id: 'inundacao_rev04e',
+	data: INUNDACAO_REV04E_JSON,
+	filled: true, // Preenche o polígono
+	stroked: true, // Desenha as bordas do polígono
+	getFillColor: [84, 109, 229, 125],
+	getLineColor: [84, 109, 229, 125], // Cor da linha
+	lineWidthMinPixels: 1, // Largura mínima da linha
+	pickable: true, // Permite que o polígono seja clicado
+	autoHighlight: true,
+	getCursor: 'grab',
+	  
+    onClick: info => {
+			if (info.object) {
+				const ly = info.object.properties.LAYER
+				let description = 'Inundado - A MSL: ' + parseFloat(info.object.properties.COTAMAXNOV).toFixed(2) + 'm'; 
+				if (ly === 'MASSAS DAGUA EXISTENTES') {
+					description = 'Massa d\'água'; // Corrigindo também o uso de apóstrofo
+				}
+				// Set content for the modal
+				//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
+				document.getElementById('modalContent').innerHTML = description; //`<h2>${name}</h2>${description}`;
+				// Display the modal
+				document.getElementById('infoModal').style.display = 'block';
+			}
+		}
+	});
+	//FIM INUNDACAO 2022
+    //****************************************************************************************************************
+
+		overlayInundRev04E = new deck.MapboxOverlay({
+			layers: [inundacao_rev04e],
+		});
+		map.addControl(overlayInundRev04E);
+	}
+	
+	let overlayBR101 = null;
+	let showBR101 = false;
+	function iniciarBR101(){
+		overlayBR101 = new deck.MapboxOverlay({
+			layers: [
+					ad33geoLayerLine('eixo_fd_fne_br101', EIXO_FD_FNE_BR101_JSON, 5, 'FAIXA', 'BR-101', 'infoModal'),
+					ad33geoLayerPoint('km-br101', KM_BR101_JSON, 0.0025, [200, 0, 80, 180], 'KM', 'BR-101', 'infoModal')
+					],
+		});
+		map.addControl(overlayBR101);
+	}
+	
+	/* function iniciarBR101 () {
+	// Create the overlay BR-101
+	
+	//****************************************************************************************************************
+	//CAMADAS DA RODOVIA BR-101
+	const eixo_fd_fne_br101 = new deck.GeoJsonLayer({
+	id: 'eixo_fd_fne_br101',
+	data: EIXO_FD_FNE_BR101_JSON,
+	filled: true, // Preenche o polígono
+	stroked: true, // Desenha as bordas do polígono
+	getFillColor: (d) => getColorFromAttribute(d.properties.FAIXA),
+	getLineColor: (d) => getColorFromAttribute(d.properties.FAIXA), // Cor da linha
+	lineWidthMinPixels: 5, // Largura mínima da linha
+	pickable: true, // Permite que o polígono seja clicado
+	autoHighlight: true,
+	getCursor: 'grab',
+	  
+    onClick: info => {
+				if (info.object) {
+					
+					const FAIXA = info.object.properties.FAIXA;
+					const description = info.object.properties.FAIXA; // Assuming this is valid HTML
+
+					// Set content for the modal
+					//document.getElementById('infoModalHeader').innerText = 'Rodovia BR-101';
+					document.getElementById('modalContent').innerHTML = 'BR-101 / ' + description; //`<h2>${name}</h2>${description}`;
+					// Display the modal
+					document.getElementById('infoModal').style.display = 'block';
+								}
+						}
+	});
+	const km_br101 = new deck.GeoJsonLayer({
+      id: 'km_br101',
+      data: KM_BR101_JSON,
+      // Styles
+      filled: true,
+      pointRadiusMinPixels: 3,
+      pointRadiusScale: 2000,
+      getPointRadius: Raio_Objeto,
+      getFillColor: [200, 0, 80, 180],
+      // Interactive props
+      pickable: true,
+      autoHighlight: true,
+	  
+      onClick: info => {
+				if (info.object) {
+					const KM = info.object.properties.KM;
+					const description = info.object.properties.KM; // Assuming this is valid HTML
+
+					// Set content for the modal
+					document.getElementById('modalContent').innerHTML = 'BR-101 / ' + description //`<h2>${name}</h2>${description}`;
+					// Display the modal
+					document.getElementById('infoModal').style.display = 'block';
+								}
+						}
+    });
+    //FIM BR-101
+    //****************************************************************************************************************
+		
+		overlayBR101 = new deck.MapboxOverlay({
+			layers: [eixo_fd_fne_br101, km_br101],
+		});
+		map.addControl(overlayBR101);
+	}
+ */
+	map.setMaxBounds(bounds);
+	
+	map.on('load', () => {
+		
+		document.getElementById('br101').addEventListener('change', () => {
+              if (showBR101) {
+                  map.removeControl(overlayBR101);
+                  showBR101 = false;
+              } else {
+                  iniciarBR101();
+                  showBR101 = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {
+		// Add the overlayQRegSobr20240702
+		
+		document.getElementById('qregsobr20240702').addEventListener('change', () => {
+              if (showQRegSobr20240702) {
+                  map.removeControl(overlayQRegSobr20240702);
+                  showQRegSobr20240702 = false;
+              } else {
+                  iniciarQRegSobr20240702();
+                  showQRegSobr20240702 = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {
+		// Add the overlayQReg20240702
+		
+		document.getElementById('qreg20240702').addEventListener('change', () => {
+              if (showQReg20240702) {
+                  map.removeControl(overlayQReg20240702);
+                  showQReg20240702 = false;
+              } else {
+                  iniciarQReg20240702();
+                  showQReg20240702 = true;
+              }
+		});
+	});
+	
+	map.on('load', () => {
+		// Add the overlayBR101
+		
+		document.getElementById('inundRev04E').addEventListener('change', () => {
+              if (showInundRev04E) {
+                  map.removeControl(overlayInundRev04E);
+                  showInundRev04E = false;
+              } else {
+                  iniciarInundRev04E();
+                  showInundRev04E = true;
+              }
+		});
+	});
+	
+	
+	map.on('load', () => {		
+		map.addSource('geojson', {
+            'type': 'geojson',
+            'data': geojson
+        });
+		// Add styles to the map
+        map.addLayer({
+            id: 'measure-points',
+            type: 'circle',
+            source: 'geojson',
+            paint: {
+                'circle-radius': 5,
+                'circle-color': '#000'
+            },
+            filter: ['in', '$type', 'Point']
+        });
+		map.addLayer({
+            id: 'measure-lines',
+            type: 'line',
+            source: 'geojson',
+            layout: {
+                'line-cap': 'round',
+                'line-join': 'round'
+            },
+            paint: {
+                'line-color': '#000',
+                'line-width': 2.5
+            },
+            filter: ['in', '$type', 'LineString']
+        });
+		
+		// Alterna entre medir e navegação
+        toggleBtn.addEventListener('click', () => {
+            isMeasuring = !isMeasuring;
+            if (isMeasuring) {
+				toggleBtn.textContent = 'Desativar Medição';
+				toggleBtn.style.background='red';
+			} else {
+				toggleBtn.textContent = 'Medir Dist.';
+				toggleBtn.style.background='';
+			}			
+        });
+		
+		map.on('click', (e) => {
+			
+			if (!isMeasuring) return;
+            
+			const features = map.queryRenderedFeatures(e.point, {
+                layers: ['measure-points']
+            });
+
+            // Remove the linestring from the group
+            // So we can redraw it based on the points collection
+            if (geojson.features.length > 1) geojson.features.pop();
+
+            // Clear the Distance container to populate it with a new value
+            distanceContainer.innerHTML = '';
+
+            // If a feature was clicked, remove it from the map
+            if (features.length) {
+                const id = features[0].properties.id;
+                geojson.features = geojson.features.filter((point) => {
+                    return point.properties.id !== id;
+                });
+            } else {
+                const point = {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [e.lngLat.lng, e.lngLat.lat]
+                    },
+                    'properties': {
+                        'id': String(new Date().getTime())
+                    }
+                };
+
+                geojson.features.push(point);
+            }
+
+            if (geojson.features.length > 1) {
+                linestring.geometry.coordinates = geojson.features.map(
+                    (point) => {
+                        return point.geometry.coordinates;
+                    }
+                );
+
+                geojson.features.push(linestring);
+
+                // Populate the distanceContainer with total distance
+                const value = document.createElement('pre');
+				const dist_m = turf.length(linestring)*1000
+                value.textContent =
+                    `Distância: ${
+                        dist_m.toFixed(2)
+                    } metros`;
+                distanceContainer.appendChild(value);
+            }
+
+            map.getSource('geojson').setData(geojson);
+        });
+		  
+		// Evento de clique no botão de Limpar Dist.
+        clearBtn.addEventListener('click', () => {
+            // Limpa o geojson
+            geojson.features = [];
+            linestring.geometry.coordinates = [];
+
+            // Atualiza o mapa com o geojson vazio
+            map.getSource('geojson').setData(geojson);
+
+            // Reseta o container de distância
+            distanceContainer.innerHTML = '';
+
+            // Optional: log para verificar que o botão foi clicado
+            console.log('Mapa e distância resetados');
+        });
+		
+      });
+	
+	map.on('mousemove', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+            layers: ['measure-points']
+        });
+        // UI indicator for clicking/hovering a point on the map
+        map.getCanvas().style.cursor = features.length ?
+            'pointer' :
+            'crosshair';
+    });
+	
+	map.on('mousemove', (e) => {
+        document.getElementById('info').innerHTML =
+            // e.point is the x, y coordinates of the mousemove event relative
+            // to the top-left corner of the map
+            `Longitude: ${e.lngLat.wrap().lng.toFixed(10)} / Latitude: ${e.lngLat.wrap().lat.toFixed(10)}`;
+    });
+	
+  let modal = document.getElementById('infoModal');
+  let header = document.getElementById('infoModalHeader');
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  // Mover o modal
+  header.onmousedown = function(e) {
+    isDragging = true;
+    offsetX = e.clientX - modal.getBoundingClientRect().left;
+    offsetY = e.clientY - modal.getBoundingClientRect().top;
+  }
+
+  document.onmousemove = function(e) {
+    if (isDragging) {
+      modal.style.left = e.clientX - offsetX + 'px';
+      modal.style.top = e.clientY - offsetY + 'px';
+      modal.style.transform = 'none'; // Remove o transform para que o arrasto funcione corretamente
+    }
+  }
+
+  document.onmouseup = function() {
+    isDragging = false;
+  }
+
+  // Fechar o modal
+  document.getElementById('closeModal').onclick = function() {
+    modal.style.display = 'none';
+  }
+
+  // Fechar o modal ao clicar fora
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+// Função para buscar JSON sob demanda e realizar busca
+async function buscarValorNoJSON(url, chaveBusca, valorBusca) {
+  try {
+    const response = await fetch(url);
+    
+    // Se o JSON for muito grande, você pode processar pedaços aqui
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let { value: chunk, done: readerDone } = await reader.read();
+    let resultado = '';
+    
+    while (!readerDone) {
+      resultado += decoder.decode(chunk, { stream: true });
+      ({ value: chunk, done: readerDone } = await reader.read());
+    }
+    resultado += decoder.decode(chunk, { stream: false });
+    
+    // Converter o resultado final para JSON
+    const jsonData = JSON.parse(resultado);
+    
+    // Realizar busca
+    return buscarRecursivo(jsonData, chaveBusca, valorBusca);
+  } catch (error) {
+    console.error(`Erro ao carregar o JSON: ${url} ->`, error);
+    return null;
+  }
+}
+
+// Função recursiva de busca nos objetos JSON
+function buscarRecursivo(obj, chaveBusca, valorBusca) {
+  const resultados = [];
+  
+  // Função auxiliar para varrer todos os níveis do objeto
+  function procurar(objeto) {
+    for (const chave in objeto) {
+      if (typeof objeto[chave] === 'object') {
+        procurar(objeto[chave]); // Descer nos níveis mais baixos
+      } else if (chave === chaveBusca && objeto[chave] == valorBusca) {
+        resultados.push(objeto); // Se encontrar a chave e o valor, adicionar aos resultados
+      }
+    }
+  }
+  
+  procurar(obj);
+  return resultados;
+}
+
+// Exemplo de uso:
+const urlJSON = 'https://e65b154a-d75b-4395-aa81-fd4a23039830.usrfiles.com/ugd/e65b15_533091eca2a3444ca3a363fa5d302aa3.json';
+buscarValorNoJSON(urlJSON, 'propriedadeDesejada', 'valorProcurado')
+  .then(resultados => {
+    console.log('Resultados da busca:', resultados);
+  })
+  .catch(error => {
+    console.error('Erro na busca:', error);
+  });
+
+
+  </script>
+</html>
