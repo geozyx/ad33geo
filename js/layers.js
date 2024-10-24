@@ -1,4 +1,16 @@
-function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, infoKey, textInfoKey, idInfoModal) {
+function ad33geoLayerLabel(urlJSON, labelField) {
+    return new deck.TextLayer({
+        id: 'point-labels',
+        data: urlJSON,
+        getPosition: d => d.geometry.coordinates,
+        getText: d => d.properties[labelField], // Campo do GeoJSON usado como rótulo
+        getSize: 16,
+        getColor: [0, 0, 0, 255], // Cor preta
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+    });
+}
+function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField, textlabelField, idInfoModal) {
     return new deck.GeoJsonLayer({
         id: idPoint,
         data: urlJSON,
@@ -14,23 +26,23 @@ function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, infoKey, te
 
         onClick: info => {
             if (info.object) {
-                const propertyValue = info.object.properties[infoKey] || 'N/A';
+                const propertyValue = info.object.properties[labelField] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey}: ${propertyValue}`;
+                    `${textlabelField}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
     });
 }
 
-function ad33geoLayerLine(idLine, urlJSON, lineWidth, infoKey, textInfoKey, idInfoModal) {
+function ad33geoLayerLine(idLine, urlJSON, lineWidth, labelField, textlabelField, idInfoModal) {
     return new deck.GeoJsonLayer({
         id: idLine,
         data: urlJSON,
         filled: true,
         stroked: true,
-        getFillColor: d => getColorFromAttribute(d.properties[infoKey]),
-        getLineColor: d => getColorFromAttribute(d.properties[infoKey]),
+        getFillColor: d => getColorFromAttribute(d.properties[labelField]),
+        getLineColor: d => getColorFromAttribute(d.properties[labelField]),
         lineWidthMinPixels: lineWidth,
         pickable: true,
         autoHighlight: true,
@@ -38,16 +50,16 @@ function ad33geoLayerLine(idLine, urlJSON, lineWidth, infoKey, textInfoKey, idIn
 
         onClick: info => {
             if (info.object) {
-                const propertyValue = info.object.properties[infoKey] || 'N/A';
+                const propertyValue = info.object.properties[labelField] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey}: ${propertyValue}`;
+                    `${textlabelField}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
     });
 }
 
-function ad33geoLayerPolygon(idPoly, urlJSON, fillColor, infoKey, textInfoKey, idInfoModal){
+function ad33geoLayerPolygon(idPoly, urlJSON, fillColor, labelField, textlabelField, idInfoModal){
     return new deck.GeoJsonLayer({
 	id: idPoly,
 	data: urlJSON,
@@ -62,9 +74,9 @@ function ad33geoLayerPolygon(idPoly, urlJSON, fillColor, infoKey, textInfoKey, i
 	  
     onClick: info => {
             if (info.object) {
-                const propertyValue = info.object.properties[infoKey] || 'N/A';
+                const propertyValue = info.object.properties[labelField] || 'N/A';
                 document.getElementById('modalContent').innerHTML = 
-                    `${textInfoKey}: ${propertyValue}`;
+                    `${textlabelField}: ${propertyValue}`;
                 document.getElementById(idInfoModal).style.display = 'block';
             }
         }
