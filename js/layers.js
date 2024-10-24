@@ -1,6 +1,6 @@
-function ad33geoLayerLabel(urlJSON, labelField) {
+function ad33geoLayerLabel(idLabel, urlJSON, labelField) {
     return new deck.TextLayer({
-        id: 'point-labels',
+        id: idLabel,
         data: urlJSON,
         getPosition: d => d.geometry.coordinates,
         getText: d => d.properties[labelField], // Campo do GeoJSON usado como rótulo
@@ -8,6 +8,7 @@ function ad33geoLayerLabel(urlJSON, labelField) {
         getColor: [0, 0, 0, 255], // Cor preta
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'center',
+	pickable: true
     });
 }
 function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField, textlabelField, idInfoModal) {
