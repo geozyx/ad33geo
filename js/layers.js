@@ -19,12 +19,12 @@ function ad33geoLabel(idLabel, idSource, fieldJSON){
             'source': idSource,
             'layout': {
                 'text-field': ['get', fieldJSON],
-                'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                'text-radial-offset': 0.5,
+                'text-variable-anchor': ['bottom', 'left', 'right'],
+                'text-radial-offset': 0.50,
                 'text-justify': 'left'
                 
             }
-        });	
+        });
 }
 
 // Cria uma camada de texto usando o Deck.gl, onde cada texto é baseado em um campo do GeoJSON.
