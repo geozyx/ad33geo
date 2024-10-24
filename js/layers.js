@@ -5,7 +5,7 @@ function ad33geoSource(idSource, urlJSON){
 	map.addSource(idSource, {
             'type': 'geojson',
             'data': urlJSON
-		});
+	});
 }
 
 // Adiciona uma camada de rótulos ao mapa, usando um campo específico do GeoJSON como texto.
@@ -21,7 +21,7 @@ function ad33geoLabel(idLabel, idSource, fieldJSON){
                 'text-field': ['get', fieldJSON],
                 'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
                 'text-radial-offset': 0.5,
-                'text-justify': 'auto'
+                'text-justify': 'left'
                 
             }
         });	
