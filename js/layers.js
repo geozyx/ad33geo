@@ -12,7 +12,7 @@ function ad33geoSource(idSource, urlJSON){
 // idLabel: Identificador único da camada de rótulos.
 // idSource: Identificador da fonte de dados usada para a camada.
 // fieldJSON: Nome do campo do GeoJSON que contém o texto do rótulo.
-function ad33geoLabel2(idLabel, idSource, fieldJSON, textSize, arrayAnchor){
+function ad33geoLabel(idLabel, idSource, fieldJSON, textSize, arrayAnchor){
 	map.addLayer({
             'id': idLabel,
             'type': 'symbol',
