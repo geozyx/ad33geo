@@ -1,7 +1,9 @@
 function ad33geoLayerLabel(idLabel, urlJSON, labelField) {
+    const response = await fetch(urlJSON);
+    const data = await response.json();
     return new deck.TextLayer({
         id: idLabel,
-        data: urlJSON,
+        data: data,
         getPosition: d => d.geometry.coordinates,
         getText: d => d.properties[labelField], // Campo do GeoJSON usado como rótulo
         getSize: 16,
