@@ -45,7 +45,7 @@ function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField,
         pointRadiusScale: 2000,
         getPointRadius: radiusPoint,
         getFillColor: fillColor,
-	getText: f => f.properties.name,
+	getText: f => f.properties[labelField],
         // Propriedades interativas
         pickable: true,
         autoHighlight: true,
