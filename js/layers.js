@@ -17,12 +17,12 @@ function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textOf
     data: data.features,
     getPosition: d => d.geometry.coordinates,
     getText: d => d.properties[fieldJSON],
+    getPixelOffset: d => textOffset,
     getAlignmentBaseline: 'center',
     getColor: textColor,
     getSize: textSize,
     getTextAnchor: textAnchor,
     fontFamily: fontFamily,
-    getTextOffset: d => textOffset,
     pickable: true,
   });
 }
