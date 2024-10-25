@@ -1,6 +1,38 @@
-// Adiciona uma fonte de dados GeoJSON ao mapa.
-// idSource: Identificador único da fonte de dados.
-// urlJSON: URL que aponta para o arquivo GeoJSON.
+/**
+ * ad33geoLayerLabel
+ * Função para criar uma camada de rótulos no mapa com base nos parâmetros fornecidos.
+ *
+ * @param {Object} data - Objeto GeoJSON contendo as features (elementos) a serem rotuladas. Você deve buscar esse objeto a partir de uma URL usando fetch e, em seguida, passá-lo para a função.
+ * @param {string} fieldJSON - Nome da propriedade dentro das features que será exibida como rótulo.
+ * @param {Array} textColor - Array RGB com a cor do texto (ex: [0, 0, 0] para preto).
+ * @param {number} textSize - Tamanho da fonte dos rótulos.
+ * @param {string} textAnchor - Âncora do texto (ex: 'start', 'middle', 'end').
+ * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
+ * @param {boolean} pickable - Define se os rótulos são interativos (true) ou não (false).
+ * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
+ */
+function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textAnchor, fontFamily) {
+  return new deck.TextLayer({
+    id: idLabel,
+    data: data.features,
+    getPosition: d => d.geometry.coordinates,
+    getText: d => d.properties[fieldJSON],
+    getAlignmentBaseline: 'center',
+    getColor: textColor,
+    getSize: textSize,
+    getTextAnchor: textAnchor,
+    fontFamily: fontFamily,
+    pickable: true,
+  });
+}
+
+/**
+ * ad33geoSource
+ * Função para adicionar uma fonte GeoJSON ao mapa.
+ *
+ * @param {string} idSource - Identificador único da fonte a ser adicionada ao mapa.
+ * @param {string} urlJSON - URL do arquivo GeoJSON que será usado como fonte de dados.
+ */
 function ad33geoSource(idSource, urlJSON){
 	map.addSource(idSource, {
             'type': 'geojson',
@@ -8,10 +40,16 @@ function ad33geoSource(idSource, urlJSON){
 	});
 }
 
-// Adiciona uma camada de rótulos ao mapa, usando um campo específico do GeoJSON como texto.
-// idLabel: Identificador único da camada de rótulos.
-// idSource: Identificador da fonte de dados usada para a camada.
-// fieldJSON: Nome do campo do GeoJSON que contém o texto do rótulo.
+/**
+ * ad33geoLabel
+ * Função para adicionar uma camada de rótulos ao mapa com base em uma fonte existente.
+ *
+ * @param {string} idLabel - Identificador único da camada de rótulos.
+ * @param {string} idSource - Identificador da fonte a ser utilizada para os rótulos.
+ * @param {string} fieldJSON - Nome da propriedade dentro da fonte que será exibida como rótulo.
+ * @param {number} textSize - Tamanho do texto dos rótulos.
+ * @param {Array} arrayAnchor - Array de âncoras para o posicionamento do texto (ex: ['top', 'bottom', 'left', 'right']).
+ */
 function ad33geoLabel(idLabel, idSource, fieldJSON, textSize, arrayAnchor){
 	map.addLayer({
             'id': idLabel,
@@ -27,14 +65,19 @@ function ad33geoLabel(idLabel, idSource, fieldJSON, textSize, arrayAnchor){
         });
 }
 
-// Cria uma camada de pontos usando o Deck.gl, com interação ao clicar que exibe informações em um modal.
-// idPoint: Identificador único da camada de pontos.
-// urlJSON: URL que aponta para o arquivo GeoJSON.
-// radiusPoint: Função ou valor que determina o raio dos pontos.
-// fillColor: Cor de preenchimento dos pontos.
-// labelField: Nome do campo do GeoJSON usado para o valor exibido no modal.
-// textlabelField: Texto exibido no modal que descreve o valor.
-// idInfoModal: Identificador do modal onde as informações são exibidas.
+/**
+ * ad33geoLayerPoint
+ * Função para criar uma camada de pontos no mapa com base em um arquivo GeoJSON.
+ *
+ * @param {string} idPoint - Identificador único da camada de pontos.
+ * @param {string} urlJSON - URL do arquivo GeoJSON que contém os pontos a serem exibidos.
+ * @param {function} radiusPoint - Função para determinar o raio dos pontos.
+ * @param {Array} fillColor - Array RGB com a cor de preenchimento dos pontos (ex: [255, 0, 0] para vermelho).
+ * @param {string} labelField - Nome da propriedade que será utilizada para exibir o rótulo do ponto.
+ * @param {string} textlabelField - Texto descritivo que será exibido no modal ao clicar no ponto.
+ * @param {string} idInfoModal - Identificador do modal que será exibido ao clicar em um ponto.
+ * @returns {deck.GeoJsonLayer} - Retorna uma camada de pontos configurada.
+ */
 function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField, textlabelField, idInfoModal) {
     return new deck.GeoJsonLayer({
         id: idPoint,
@@ -61,13 +104,18 @@ function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField,
     });
 }
 
-// Cria uma camada de linhas usando o Deck.gl, com interação ao clicar que exibe informações em um modal.
-// idLine: Identificador único da camada de linhas.
-// urlJSON: URL que aponta para o arquivo GeoJSON.
-// lineWidth: Largura das linhas.
-// labelField: Nome do campo do GeoJSON usado para determinar a cor das linhas e o valor exibido no modal.
-// textlabelField: Texto exibido no modal que descreve o valor.
-// idInfoModal: Identificador do modal onde as informações são exibidas.
+/**
+ * ad33geoLayerLine
+ * Função para criar uma camada de linhas no mapa com base em um arquivo GeoJSON.
+ *
+ * @param {string} idLine - Identificador único da camada de linhas.
+ * @param {string} urlJSON - URL do arquivo GeoJSON que contém as linhas a serem exibidas.
+ * @param {number} lineWidth - Largura mínima das linhas em pixels.
+ * @param {string} labelField - Nome da propriedade que será utilizada para exibir o rótulo da linha.
+ * @param {string} textlabelField - Texto descritivo que será exibido no modal ao clicar na linha.
+ * @param {string} idInfoModal - Identificador do modal que será exibido ao clicar em uma linha.
+ * @returns {deck.GeoJsonLayer} - Retorna uma camada de linhas configurada.
+ */
 function ad33geoLayerLine(idLine, urlJSON, lineWidth, labelField, textlabelField, idInfoModal) {
     return new deck.GeoJsonLayer({
         id: idLine,
@@ -92,13 +140,18 @@ function ad33geoLayerLine(idLine, urlJSON, lineWidth, labelField, textlabelField
     });
 }
 
-// Cria uma camada de polígonos usando o Deck.gl, com interação ao clicar que exibe informações em um modal.
-// idPoly: Identificador único da camada de polígonos.
-// urlJSON: URL que aponta para o arquivo GeoJSON.
-// fillColor: Cor de preenchimento dos polígonos.
-// labelField: Nome do campo do GeoJSON usado para o valor exibido no modal.
-// textlabelField: Texto exibido no modal que descreve o valor.
-// idInfoModal: Identificador do modal onde as informações são exibidas.
+/**
+ * ad33geoLayerPolygon
+ * Função para criar uma camada de polígonos no mapa com base em um arquivo GeoJSON.
+ *
+ * @param {string} idPoly - Identificador único da camada de polígonos.
+ * @param {string} urlJSON - URL do arquivo GeoJSON que contém os polígonos a serem exibidos.
+ * @param {Array} fillColor - Array RGB com a cor de preenchimento dos polígonos (ex: [0, 255, 0] para verde).
+ * @param {string} labelField - Nome da propriedade que será utilizada para exibir o rótulo do polígono.
+ * @param {string} textlabelField - Texto descritivo que será exibido no modal ao clicar no polígono.
+ * @param {string} idInfoModal - Identificador do modal que será exibido ao clicar em um polígono.
+ * @returns {deck.GeoJsonLayer} - Retorna uma camada de polígonos configurada.
+ */
 function ad33geoLayerPolygon(idPoly, urlJSON, fillColor, labelField, textlabelField, idInfoModal){
     return new deck.GeoJsonLayer({
 	id: idPoly,
