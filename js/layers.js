@@ -27,24 +27,6 @@ function ad33geoLabel(idLabel, idSource, fieldJSON, textSize, arrayAnchor){
         });
 }
 
-// Cria uma camada de texto usando o Deck.gl, onde cada texto é baseado em um campo do GeoJSON.
-// idLabel: Identificador único da camada de texto.
-// urlJSON: URL que aponta para o arquivo GeoJSON.
-// labelField: Nome do campo do GeoJSON usado como rótulo.
-function ad33geoLayerLabel(idLabel, urlJSON, labelField) {
-    return new deck.TextLayer({
-        id: idLabel,
-        data: urlJSON,
-        getPosition: d => d.geometry.coordinates,
-        getText: d => d.properties[labelField], // Campo do GeoJSON usado como rótulo
-        getSize: 16,
-        getColor: [0, 0, 0, 255], // Cor preta
-        getTextAnchor: 'middle',
-        getAlignmentBaseline: 'center',
-	pickable: true
-    });
-}
-
 // Cria uma camada de pontos usando o Deck.gl, com interação ao clicar que exibe informações em um modal.
 // idPoint: Identificador único da camada de pontos.
 // urlJSON: URL que aponta para o arquivo GeoJSON.
@@ -63,6 +45,7 @@ function ad33geoLayerPoint(idPoint, urlJSON, radiusPoint, fillColor, labelField,
         pointRadiusScale: 2000,
         getPointRadius: radiusPoint,
         getFillColor: fillColor,
+	getText: f => f.properties.name,
         // Propriedades interativas
         pickable: true,
         autoHighlight: true,
