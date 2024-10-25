@@ -13,6 +13,12 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
         getSize: textSize,
         getTextAnchor: textAnchor,
         fontFamily: fontFamily,
+	fontSettings: {
+        	sdf: true,
+        	fontSize: 128,
+        	buffer: 10,
+        	radius: 8
+	},
         pickable: true,
     });
 }
@@ -46,6 +52,12 @@ function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, t
     getSize: textSize,
     getTextAnchor: textAnchor,
     fontFamily: fontFamily,
+    fontSettings: {
+        sdf: true,
+        fontSize: 128,
+        buffer: 10,
+        radius: 8
+    },
     pickable: true,
   });
 }
