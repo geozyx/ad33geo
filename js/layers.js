@@ -7,11 +7,11 @@
  * @param {Array} textColor - Array RGB com a cor do texto (ex: [0, 0, 0] para preto).
  * @param {number} textSize - Tamanho da fonte dos rótulos.
  * @param {string} textAnchor - Âncora do texto (ex: 'start', 'middle', 'end').
+ * @param {string} textOffset - Para aumentar a distância do texto em relação ao ponto em uma camada de texto no Deck.gl . Ex.: [2, 3]
  * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
- * @param {boolean} pickable - Define se os rótulos são interativos (true) ou não (false).
  * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
  */
-function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textAnchor, fontFamily) {
+function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
   return new deck.TextLayer({
     id: idLabel,
     data: data.features,
@@ -22,6 +22,7 @@ function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textAn
     getSize: textSize,
     getTextAnchor: textAnchor,
     fontFamily: fontFamily,
+    getTextOffset: d => textOffset,
     pickable: true,
   });
 }
