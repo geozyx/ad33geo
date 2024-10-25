@@ -11,7 +11,7 @@
  * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
  * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
  */
-function ad33geoLayerLabel(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
+function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
   return new deck.TextLayer({
     id: idLabel,
     data: data.features,
