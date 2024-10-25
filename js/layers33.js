@@ -1,12 +1,13 @@
 
-function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, textHalo, fontFamily) {
+function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, textHalo, colorHalo, fontFamily) {
     return new deck.TextLayer({
         id: idLabel,
         data: data.features,
         getPosition: d => getRandomPointInPolygon(d.geometry), // Usa a função para pegar um ponto dentro do polígono
         getText: d => d.properties[fieldJSON],
         getPixelOffset: d => textOffset,
-	outlineWidth: d => textHalo,
+	outlineWidth: textHalo,
+	outlineColor: colorHalo,
         getAlignmentBaseline: 'center',
         getColor: textColor,
         getSize: textSize,
@@ -27,17 +28,19 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
  * @param {string} textAnchor - Âncora do texto (ex: 'start', 'middle', 'end').
  * @param {string} textOffset - Para aumentar a distância do texto em relação ao ponto em uma camada de texto no Deck.gl . Ex.: [2, 3]
  * @param {string} textHalo - Contorno do texto.
+ * @param {string} colorHalo - Cor do contorno do texto.
  * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
  * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
  */
-function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, textHalo, fontFamily) {
+function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, textHalo, colorHalo, fontFamily) {
   return new deck.TextLayer({
     id: idLabel,
     data: data.features,
     getPosition: d => d.geometry.coordinates,
     getText: d => d.properties[fieldJSON],
     getPixelOffset: d => textOffset,
-    outlineWidth: d => textHalo,
+    outlineWidth: textHalo,
+    outlineColor: colorHalo,
     getAlignmentBaseline: 'center',
     getColor: textColor,
     getSize: textSize,
