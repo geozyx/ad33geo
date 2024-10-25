@@ -14,6 +14,7 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
         getTextAnchor: textAnchor,
         fontFamily: fontFamily,
 	sdf: true,
+	billboard: true,
         pickable: true,
     });
 }
@@ -48,6 +49,7 @@ function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, t
     getTextAnchor: textAnchor,
     fontFamily: fontFamily,
     sdf: true,
+    billboard: true,
     pickable: true,
   });
 }
