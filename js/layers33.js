@@ -1,5 +1,22 @@
+
+function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
+    return new deck.TextLayer({
+        id: idLabel,
+        data: data.features,
+        getPosition: d => getRandomPointInPolygon(d.geometry), // Usa a função para pegar um ponto dentro do polígono
+        getText: d => d.properties[fieldJSON],
+        getPixelOffset: d => textOffset,
+        getAlignmentBaseline: 'center',
+        getColor: textColor,
+        getSize: textSize,
+        getTextAnchor: textAnchor,
+        fontFamily: fontFamily,
+        pickable: true,
+    });
+}
+
 /**
- * ad33geoLayerLabel
+ * ad33geoLayerLabelPoint
  * Função para criar uma camada de rótulos no mapa com base nos parâmetros fornecidos.
  *
  * @param {Object} data - Objeto GeoJSON contendo as features (elementos) a serem rotuladas. Você deve buscar esse objeto a partir de uma URL usando fetch e, em seguida, passá-lo para a função.
