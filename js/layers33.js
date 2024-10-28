@@ -1,17 +1,20 @@
 
-function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
+function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily, textType) {
     return new deck.TextLayer({
         id: idLabel,
         data: data.features,
         getPosition: d => getRandomPointInPolygon(d.geometry), // Usa a função para pegar um ponto dentro do polígono
-        getText: d => d.properties[fieldJSON].toString(), // Garantindo que seja uma string
+        getText: d => {
+            const value = d.properties[fieldJSON];
+            return textType === 'string' ? value.toString() : value; // Converte para string se necessário
+        },
         getPixelOffset: d => textOffset,
         getAlignmentBaseline: 'center',
         getColor: textColor,
         getSize: textSize,
         getTextAnchor: textAnchor,
         fontFamily: fontFamily,
-	pickable: true,
+        pickable: true,
     });
 }
 
