@@ -28,13 +28,17 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
  * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
  * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
  */
-function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, fontFamily) {
+function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textColor, textSize, textOffset, textAnchor, textHalo, colorHalo, fontFamily) {
   return new deck.TextLayer({
     id: idLabel,
     data: data.features,
     getPosition: d => d.geometry.coordinates,
     getText: d => d.properties[fieldJSON],
     getPixelOffset: d => textOffset,
+    outlineWidth: textHalo,
+    outlineColor: colorHalo,
+    sdf: true,
+    billboard: true,
     getAlignmentBaseline: 'center',
     getColor: textColor,
     getSize: textSize,
