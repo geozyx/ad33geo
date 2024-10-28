@@ -21,14 +21,16 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
  *
  * @param {Object} data - Objeto GeoJSON contendo as features (elementos) a serem rotuladas. Você deve buscar esse objeto a partir de uma URL usando fetch e, em seguida, passá-lo para a função.
  * @param {string} fieldJSON - Nome da propriedade dentro das features que será exibida como rótulo.
- * @param {Array} textColor - Array RGB com a cor do texto (ex: [0, 0, 0] para preto).
  * @param {number} textSize - Tamanho da fonte dos rótulos.
- * @param {string} textAnchor - Âncora do texto (ex: 'start', 'middle', 'end').
+ * @param {Array} textColor - Array RGB com a cor do texto (ex: [0, 0, 0] para preto).
  * @param {string} textOffset - Para aumentar a distância do texto em relação ao ponto em uma camada de texto no Deck.gl . Ex.: [2, 3]
+ * @param {number} halo - Largura do contorno.
+ * @param {Array} colorHalo - Array RGB com a cor do texto (ex: [0, 0, 0] para preto).
+ * @param {string} textAnchor - Âncora do texto (ex: 'start', 'middle', 'end').
  * @param {string} fontFamily - Fonte do texto (ex: 'Arial Narrow').
  * @returns {deck.TextLayer} - Retorna uma camada de rótulos configurada.
  */
-function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textSize, textColor, textOffset, textHalo, colorHalo, textAnchor, fontFamily) {
+function ad33geoLayerLabelPoint2(data, idLabel, fieldJSON, textSize, textColor, textOffset, halo, colorHalo, textAnchor, fontFamily) {
   return new deck.TextLayer({
     id: idLabel,
     data: data.features,
@@ -37,8 +39,10 @@ function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textSize, textColor, t
     getPixelOffset: d => textOffset,
     outlineWidth: textHalo,
     outlineColor: colorHalo,
-    sdf: true,
-    billboard: true,
+    fontSettings: {
+        sdf: true,
+    },
+	sdf: true,
     getAlignmentBaseline: 'center',
     getColor: textColor,
     getSize: textSize,
