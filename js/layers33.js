@@ -4,7 +4,7 @@ function ad33geoLayerLabelPolygon(data, idLabel, fieldJSON, textColor, textSize,
         id: idLabel,
         data: data.features,
         getPosition: d => getRandomPointInPolygon(d.geometry), // Usa a função para pegar um ponto dentro do polígono
-        getText: d => d.properties[fieldJSON],
+        getText: d => d.properties[fieldJSON].toString(), // Garantindo que seja uma string
         getPixelOffset: d => textOffset,
         getAlignmentBaseline: 'center',
         getColor: textColor,
@@ -33,7 +33,7 @@ function ad33geoLayerLabelPoint(data, idLabel, fieldJSON, textSize, textColor, t
     id: idLabel,
     data: data.features,
     getPosition: d => d.geometry.coordinates,
-    getText: d => d.properties[fieldJSON],
+    getText: d => d.properties[fieldJSON].toString(), // Garantindo que seja uma string
     getPixelOffset: d => textOffset,
     /*outlineWidth: textHalo,
     outlineColor: colorHalo,
