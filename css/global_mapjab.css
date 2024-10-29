@@ -192,6 +192,22 @@ ul, #myUL {
     width: 5%;
 }
 
+.toggle-sat {
+    position: absolute;
+    top: 175px;
+    left: 94%;
+    z-index: 6;
+    background-color: #1D67CD;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 8px;
+    text-align: center;
+    width: 5%;
+}
+
 /* Responsividade */
 @media (max-width: 600px) {
 	#closeModal {
