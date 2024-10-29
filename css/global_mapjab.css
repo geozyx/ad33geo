@@ -16,6 +16,9 @@ body {
 
 ul, #myUL {
   list-style-type: none;
+  padding-left: 10px; /* Controla o espaço entre a borda esquerda e os itens */
+  margin-left: 0; /* Remove margens extras */
+  list-style-position: inside; /* Faz com que o marcador fique dentro do contêiner do <li> */
 }
 
 #myUL {
